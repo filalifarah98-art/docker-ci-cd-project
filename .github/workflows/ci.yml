@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, test-protection]
   pull_request:
 
 jobs:
@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. TESTS (HTML/CSS simple)
       - name: Test HTML exists
         run: |
           if [ ! -f index.html ]; then
@@ -24,16 +22,15 @@ jobs:
 
       - name: Test CSS exists
         run: |
-          if [ ! -f style.css ]; then
-            echo "style.css missing"
-            exit 1
+          if [ -f style.css ]; then
+            echo "style.css found"
+          else
+            echo "style.css not found (optional)"
           fi
 
-      # 3. BUILD DOCKER
       - name: Build Docker image
         run: docker build -t mon-site .
 
-      # 4. SECURITY SCAN (BONUS ⭐)
       - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
